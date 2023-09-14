@@ -95,7 +95,7 @@ body {
     min-height: 100vh;
 }
 
-/* Общие стили */
+/* general styles */
 
 .container {
     min-height: 100vh;
@@ -197,12 +197,34 @@ body {
                     border: 1px solid #ff4757;
                     box-shadow: 0 0 0 1px #fff, 0 0 0 2px #ff4757;
                 }
+
+                & input[type="checkbox"] {
+                    -webkit-appearance: none;
+                    -moz-appearance: none;
+                    appearance: none;
+                    outline: none;
+                    width: 11px;
+                    height: 11px;
+                    margin-right: 8px;
+                    border: 1px solid #ced6e0;
+                    /*border-radius: 1px;*/
+                }
+
+                & input[type="checkbox"]:checked {
+                    width: 7px;
+                    height: 7px;
+                    margin-left: 2px;
+                    margin-right: 10px;
+                    background-color: #ff4757;
+                    border: 1px solid #ff4757;
+                    box-shadow: 0 0 0 1px #fff, 0 0 0 2px #ff4757;
+                }
             }
         }
     }
 }
 
-/* Стили для мобильников */
+/* mobile phone styles */
 
 @media (max-width: 600px) {
     .container {
@@ -230,7 +252,7 @@ body {
     }
 }
 
-/* Стили для планшетов */
+/* tablet styles */
 
 @media (min-width: 601px) and (max-width: 1024px) {
     .container {
@@ -256,7 +278,7 @@ body {
     }
 }
 
-/* Стили для настольных компьютеров */
+/* pc styles */
 
 @media (min-width: 1025px) {
     .container {

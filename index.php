@@ -1,3 +1,14 @@
+<?php
+$questions = json_decode(file_get_contents('questions.json'), true);
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    echo '<pre>';
+    print_r($_POST);
+    echo '</pre>';
+}
+
+?>
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -24,17 +35,27 @@
         Узнайте, какие страны лучше всего подходят<br>для вашего следующего путешествия
     </div>
 
-    <form class="form">
-        <div class="question-block">
-            <p><span class="question-number">1. </span>Вопрос</p>
-            <div class="question-answers">
-                <div class="answer-option"><input type="radio" name="name" id="name1"> <label for="name1">Ответ 1</label></div>
-                <div class="answer-option"><input type="radio" name="name" id="name2"> <label for="name2">Ответ 2</label></div>
-                <div class="answer-option"><input type="radio" name="name" id="name3"> <label for="name3">Ответ 3</label></div>
-                <div class="answer-option"><input type="radio" name="name" id="name4"> <label for="name4">Ответ 4</label></div>
-                <div class="answer-option"><input type="radio" name="name" id="name5"> <label for="name5">Ответ 5</label></div>
+    <form class="form" method="POST" target="">
+        <?php
+        for ($i = 1; $i <= count($questions); $i++) {
+            $question = $questions[$i - 1];
+            $type = $question['type'];
+            $options = $question['options']; ?>
+            <div class="question-block">
+                <p><span class="question-number"><?= $i ?>. </span><?= $question['question'] ?></p>
+                <div class="question-answers">
+                    <?php
+                    $id = 0;
+                    foreach ($options as $option) { ?>
+                        <div class="answer-option">
+                            <?php $name = 'answer-' . $i . '-' . ++$id; ?>
+                            <input type="<?= $type ?>" name="<?= $name ?>" id="<?= $name ?>">
+                            <label for="<?= $name ?>"><?= $option ?></label>
+                        </div>
+                    <?php } ?>
+                </div>
             </div>
-        </div>
+        <?php } ?>
 
         <button type="submit">Узнать</button>
     </form>
