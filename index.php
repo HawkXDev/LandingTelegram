@@ -2,11 +2,35 @@
 $questions = json_decode(file_get_contents('questions.json'), true);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    echo '<pre>';
-    print_r($_POST);
-    echo '</pre>';
-}
+    $text = $_POST['name'] . "\n" . $_POST['phone'] . "\n";
+    $q = [];
 
+    unset($_POST['name']);
+    unset($_POST['phone']);
+
+    foreach ($_POST as $key => $value) {
+        $updated_key = str_replace('answer-', '', $key);
+
+        $numbers = explode('-', $updated_key);
+        $number1 = intval($numbers[0]);
+        $number2 = isset($numbers[1]) ? $numbers[1] : null;
+
+        $item = $questions[$number1 - 1];
+        $question = $item['question'];
+        $options = $item['options'];
+        $answer = $options[$value - 1];
+
+        if (!in_array($question, $q)) {
+            $q[] = $question;
+            $text .= "\n" . $question . "\n";
+        }
+        $text .= $answer . "\n";
+    }
+
+    $text = str_replace("\n", "<br>", $text);
+    echo $text;
+    die();
+}
 ?>
 
 <!doctype html>
@@ -48,18 +72,60 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $id = 0;
                     foreach ($options as $option) { ?>
                         <div class="answer-option">
-                            <?php $name = 'answer-' . $i . '-' . ++$id; ?>
-                            <input type="<?= $type ?>" name="<?= $name ?>" id="<?= $name ?>">
-                            <label for="<?= $name ?>"><?= $option ?></label>
+                            <?php
+                            ++$id;
+                            if ($type == 'radio') {
+                                $name = 'answer-' . $i;
+                                $id_val = 'answer-' . $i . '-' . $id;
+                            } else {
+                                $name = 'answer-' . $i . '-' . $id;
+                                $id_val = $name;
+                            }
+                            ?>
+                            <input type="<?= $type ?>" name="<?= $name ?>" id="<?= $id_val ?>" value="<?= $id ?>">
+                            <label for="<?= $id_val ?>"><?= $option ?></label>
                         </div>
                     <?php } ?>
                 </div>
             </div>
         <?php } ?>
 
-        <button type="submit">Узнать</button>
+        <div class="additional-text-3">
+            Заполните форму, чтобы получить консультацию
+        </div>
+
+        <div class="contacts">
+            <div class="question-block">
+                <div class="question-answers">
+                    <label for="name">Имя*</label>
+                    <input type="text" name="name" id="name" placeholder="Имя" required>
+                    <label for="phone">Телефон*</label>
+                    <input type="text" name="phone" id="phone" inputmode="tel" pattern="[+\d-]*"
+                           oninput="this.value = this.value.replace(/[^+\d-]/g, '');"
+                           placeholder="+7 ___ ___ __ __" required>
+                    <button type="submit">Узнать</button>
+
+                    <div class="additional-text-4">
+                        Нажимая на кнопку, вы даете согласие на<br>
+                        <a href="personal.html" target="_blank">обработку персональных данных</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </form>
 </div>
+
+<script>
+    const phoneInput = document.getElementById('phone');
+    phoneInput.addEventListener('input', function () {
+        const value = this.value;
+        const plusCount = (value.match(/\+/g) || []).length;
+        if (plusCount > 1) {
+            this.value = value.slice(0, -1);
+        }
+    });
+</script>
 
 </body>
 </html>

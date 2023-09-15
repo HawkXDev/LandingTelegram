@@ -479,3 +479,4 @@ out/
 !**/src/test/**/out/
 .idea/
 *.iml
+/personal.html.origin
