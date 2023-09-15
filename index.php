@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 
     <div class="additional-text-2">
-        Узнайте, какие страны лучше всего подходят<br>для вашего следующего путешествия
+        Узнайте, какие страны лучше всего подходят для вашего следующего путешествия
     </div>
 
     <form class="form" method="POST" target="">
@@ -82,7 +82,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 $id_val = $name;
                             }
                             ?>
-                            <input type="<?= $type ?>" name="<?= $name ?>" id="<?= $id_val ?>" value="<?= $id ?>">
+                            <input type="<?= $type ?>" name="<?= $name ?>" id="<?= $id_val ?>" value="<?= $id ?>" <?php
+                            if ($type == 'radio') {
+                                echo 'required';
+                            } ?>>
                             <label for="<?= $id_val ?>"><?= $option ?></label>
                         </div>
                     <?php } ?>
