@@ -1,4 +1,5 @@
 <?php
+$logFilePath = 'telegram_log.txt';
 $questions = json_decode(file_get_contents('questions.json'), true);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -27,9 +28,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $text .= $answer . "\n";
     }
 
-    $text = str_replace("\n", "<br>", $text);
-    echo $text;
-    die();
+    require_once 'Config.php';
+
+    // Отправка текстового сообщения в Telegram
+    $telegramToken = Config::$telegramToken;
+    $telegramChatId = Config::$telegramChatId;
+
+    // Формирование сообщения для отправки в Telegram
+    $telegramText = "*** Новое сообщение с формы ***\n\n" . $text;
+
+    // Отправка запроса к Telegram Bot API
+    $telegramUrl = "https://api.telegram.org/bot{$telegramToken}/sendMessage";
+    $telegramData = ['chat_id' => $telegramChatId, 'text' => $telegramText];
+
+    $telegramOptions = ['http' => [
+        'method' => 'POST',
+        'header' => 'Content-Type: application/x-www-form-urlencoded',
+        'content' => http_build_query($telegramData)]];
+
+    $telegramContext = stream_context_create($telegramOptions);
+    $telegramResponse = file_get_contents($telegramUrl, false, $telegramContext);
+
+    // Получение текущей метки времени
+    $timeStamp = "[" . date('Y-m-d H:i:s') . "] ";
+
+    // Проверка статуса отправки
+    if ($telegramResponse === false) {
+        // Обработка ошибки при отправке
+        $errorMessage = $timeStamp . 'Ошибка отправки сообщения в Telegram: ' . $http_response_header[0];
+        $errorMessage .= PHP_EOL . 'Текст сообщения: ' . $text;
+        file_put_contents($logFilePath, $errorMessage . PHP_EOL, FILE_APPEND);
+    } else {
+        // Обработка успешной отправки
+        $successMessage = $timeStamp . 'Сообщение успешно отправлено в Telegram!';
+        file_put_contents($logFilePath, $successMessage . PHP_EOL, FILE_APPEND);
+    }
 }
 ?>
 

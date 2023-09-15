@@ -479,4 +479,7 @@ out/
 !**/src/test/**/out/
 .idea/
 *.iml
-/personal.html.origin
+
+/personal.html
+/Config.php
+/telegram_log.txt
