@@ -3,7 +3,29 @@ $logFilePath = 'telegram_log.txt';
 $questions = json_decode(file_get_contents('questions.json'), true);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $text = $_POST['name'] . "\n" . $_POST['phone'] . "\n";
+    // Anti-bot protection
+    if ($_POST['surname'] != 'nosurname') {
+        die;
+    }
+    unset($_POST['surname']);
+
+    $name = $_POST['name'];
+    $phone = $_POST['phone'];
+
+    if (empty($name) || !is_string($name) || empty($phone) || !is_string($phone)) {
+        echo 'Unknown error';
+        die;
+    }
+
+    $escapedName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+    $escapedPhone = htmlspecialchars($phone, ENT_QUOTES, 'UTF-8');
+
+    if (!preg_match("/^\+?(\d{1,3})?[- .]?\(?(?:\d{2,3})\)?[- .]?\d\d\d[- .]?\d\d\d\d$/", $escapedPhone)) {
+        echo 'The phone number is invalid';
+        die;
+    }
+
+    $text = $escapedName . "\n" . $escapedPhone . "\n";
     $q = [];
 
     unset($_POST['name']);
@@ -58,11 +80,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $errorMessage = $timeStamp . 'Ошибка отправки сообщения в Telegram: ' . $http_response_header[0];
         $errorMessage .= PHP_EOL . 'Текст сообщения: ' . $text;
         file_put_contents($logFilePath, $errorMessage . PHP_EOL, FILE_APPEND);
+
+        echo 'Unknown error';
+        die;
     } else {
         // Обработка успешной отправки
         $successMessage = $timeStamp . 'Сообщение успешно отправлено в Telegram!';
         file_put_contents($logFilePath, $successMessage . PHP_EOL, FILE_APPEND);
     }
+
+    header('Location: success.php');
 }
 ?>
 
@@ -135,6 +162,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="question-answers">
                     <label for="name">Имя*</label>
                     <input type="text" name="name" id="name" placeholder="Имя" required>
+
+                    <input type="text" name="surname" id="surname" placeholder="Фамилия" required>
+
                     <label for="phone">Телефон*</label>
                     <input type="text" name="phone" id="phone" inputmode="tel" pattern="[+\d-]*"
                            oninput="this.value = this.value.replace(/[^+\d-]/g, '');"
@@ -161,6 +191,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             this.value = value.slice(0, -1);
         }
     });
+
+    const surname = document.getElementById('surname');
+    document.querySelector('button[type="submit"]').addEventListener('click', function (e) {
+        if (surname.value === '') {
+            surname.value = 'nosurname';
+        }
+    })
 </script>
 
 </body>
