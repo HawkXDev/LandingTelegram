@@ -166,9 +166,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <input type="text" name="surname" id="surname" placeholder="Фамилия" required>
 
                     <label for="phone">Телефон*</label>
-                    <input type="text" name="phone" id="phone" inputmode="tel" pattern="[+\d-]*"
-                           oninput="this.value = this.value.replace(/[^+\d-]/g, '');"
-                           placeholder="+7 ___ ___ __ __" required>
+                    <!-- <input type="text" name="phone" id="phone" inputmode="tel" pattern="[+\d-]*"   -->
+                    <!-- oninput="this.value = this.value.replace(/[^+\d-]/g, '');"                     -->
+                    <!-- placeholder="+7 (___) ___ ____" required>                                      -->
+                    <input class="tel" value="" placeholder="+7 (___) ___ ____" name="phone" required>
+
                     <button type="submit">Узнать</button>
 
                     <div class="additional-text-4">
@@ -183,21 +185,61 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </div>
 
 <script>
-    const phoneInput = document.getElementById('phone');
-    phoneInput.addEventListener('input', function () {
-        const value = this.value;
-        const plusCount = (value.match(/\+/g) || []).length;
-        if (plusCount > 1) {
-            this.value = value.slice(0, -1);
-        }
+    window.addEventListener("DOMContentLoaded", function () {
+        [].forEach.call(document.querySelectorAll('.tel'), function (input) {
+            var keyCode;
+
+            function mask(event) {
+                event.keyCode && (keyCode = event.keyCode);
+                var pos = this.selectionStart;
+                if (pos < 3) event.preventDefault();
+                var matrix = "+7 (___) ___ ____",
+                    i = 0,
+                    def = matrix.replace(/\D/g, ""),
+                    val = this.value.replace(/\D/g, ""),
+                    new_value = matrix.replace(/[_\d]/g, function (a) {
+                        return i < val.length ? val.charAt(i++) : a;
+                    });
+                i = new_value.indexOf("_");
+                if (i != -1) {
+                    i < 5 && (i = 3);
+                    new_value = new_value.slice(0, i);
+                }
+                var reg = matrix.substr(0, this.value.length).replace(/_+/g,
+                    function (a) {
+                        return "\\d{1," + a.length + "}";
+                    }).replace(/[+()]/g, "\\$&");
+                reg = new RegExp("^" + reg + "$");
+                if (!reg.test(this.value) || this.value.length < 5 || keyCode > 47 && keyCode < 58) {
+                    this.value = new_value;
+                }
+                if (event.type == "blur" && this.value.length < 5) {
+                    this.value = "";
+                }
+            }
+
+            input.addEventListener('input', mask, false);
+            input.addEventListener('focus', mask, false);
+            input.addEventListener('blur', mask, false);
+            input.addEventListener('keydown', mask, false);
+        })
     });
+
+    // const phoneInput = document.getElementById('phone');
+    // phoneInput.addEventListener('input', function () {
+    //     const value = this.value;
+    //     const plusCount = (value.match(/\+/g) || []).length;
+    //     if (plusCount > 1) {
+    //         this.value = value.slice(0, -1);
+    //     }
+    // });
 
     const surname = document.getElementById('surname');
     document.querySelector('button[type="submit"]').addEventListener('click', function (e) {
         if (surname.value === '') {
             surname.value = 'nosurname';
         }
-    })
+    });
 </script>
 
 </body>
