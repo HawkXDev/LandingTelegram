@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $escapedName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
     $escapedPhone = htmlspecialchars($phone, ENT_QUOTES, 'UTF-8');
 
-    if (!preg_match("/^\+?(\d{1,3})?[- .]?\(?(?:\d{2,3})\)?[- .]?\d\d\d[- .]?\d\d\d\d$/", $escapedPhone)) {
+    if (!preg_match("/^\+?(\d{1,3})?[- .]?\(?(\d{2,3})\)?[- .]?\d{3}[- .]?\d{4}$/", $escapedPhone)) {
         echo 'The phone number is invalid';
         die;
     }
@@ -60,6 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $telegramText = "*** Новое сообщение с формы ***\n\n" . $text;
 
     // Отправка запроса к Telegram Bot API
+    /** @noinspection PhpUnnecessaryCurlyVarSyntaxInspection */
     $telegramUrl = "https://api.telegram.org/bot{$telegramToken}/sendMessage";
     $telegramData = ['chat_id' => $telegramChatId, 'text' => $telegramText];
 
@@ -184,28 +185,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </form>
 </div>
 
+<!--suppress JSUnusedLocalSymbols -->
 <script>
     window.addEventListener("DOMContentLoaded", function () {
         [].forEach.call(document.querySelectorAll('.tel'), function (input) {
-            var keyCode;
+            let keyCode;
 
             function mask(event) {
                 event.keyCode && (keyCode = event.keyCode);
-                var pos = this.selectionStart;
+                const pos = this.selectionStart;
                 if (pos < 3) event.preventDefault();
-                var matrix = "+7 (___) ___ ____",
-                    i = 0,
-                    def = matrix.replace(/\D/g, ""),
-                    val = this.value.replace(/\D/g, ""),
-                    new_value = matrix.replace(/[_\d]/g, function (a) {
-                        return i < val.length ? val.charAt(i++) : a;
-                    });
+                const matrix = "+7 (___) ___ ____";
+                let i = 0;
+                const def = matrix.replace(/\D/g, ""),
+                    val = this.value.replace(/\D/g, "");
+                let new_value = matrix.replace(/[_\d]/g, function (a) {
+                    return i < val.length ? val.charAt(i++) : a;
+                });
                 i = new_value.indexOf("_");
-                if (i != -1) {
+                if (i !== -1) {
                     i < 5 && (i = 3);
                     new_value = new_value.slice(0, i);
                 }
-                var reg = matrix.substr(0, this.value.length).replace(/_+/g,
+                let reg = matrix.substring(0, this.value.length).replace(/_+/g,
                     function (a) {
                         return "\\d{1," + a.length + "}";
                     }).replace(/[+()]/g, "\\$&");
@@ -213,7 +215,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if (!reg.test(this.value) || this.value.length < 5 || keyCode > 47 && keyCode < 58) {
                     this.value = new_value;
                 }
-                if (event.type == "blur" && this.value.length < 5) {
+                if (event.type === "blur" && this.value.length < 5) {
                     this.value = "";
                 }
             }
