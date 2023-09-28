@@ -296,6 +296,14 @@ body {
             width: 100%;
             margin: 10px auto;
             font-size: 12px;
+
+            .question-answers {
+                .answer-option {
+                    & input[type="checkbox"] {
+                        border-radius: 0; /* On iOS 5 and later */
+                    }
+                }
+            }
         }
 
         .additional-text-3 {
